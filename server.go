@@ -22,6 +22,10 @@ func NewHTTPServer(mockIPoptional ...string) *HTTPMockServer {
 	return &HTTPMockServer{mux: mux, ip: mockIP}
 }
 
+func (s *HTTPMockServer) Handler() http.Handler {
+	return s.mux
+}
+
 func (s *HTTPMockServer) Handle(method, path string, handlerFunc http.HandlerFunc) {
 	s.mux.HandleFunc(path, methodMiddleware(method, handlerFunc))
 }

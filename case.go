@@ -3,13 +3,18 @@ package taste
 import (
 	"net/http"
 	"net/url"
+	"testing"
 )
 
+type scenario []*Case
+
 type Case struct {
-	Name      string
-	Request   *Request
-	Expect    *Expect
-	OnlyRunMe bool
+	Name        string
+	OnlyRunThis bool
+	Request     *Request
+	Expect      *Expect
+	RunBefore   func(t *testing.T)
+	RunAfter    func(t *testing.T)
 }
 
 type Request struct {

@@ -11,15 +11,9 @@ func TestCustomServer(t *testing.T) {
 	// basic gin server
 	server := exampleDefaultServer()
 
-	// create a default scenario
-	scenario := taste.NewScenario()
-
-	// add test cases to scenario
-	scenario.AddCases(example.TestCases)
-
-	// attach server to scenario
-	scenario.AttachServer(server)
+	// create a tester with server handler and scenario
+	tester := taste.NewTester(server.Handler(), example.Scenario)
 
 	// run the scenario
-	scenario.Run(t)
+	tester.Run(t)
 }

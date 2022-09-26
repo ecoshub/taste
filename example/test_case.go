@@ -11,7 +11,7 @@ var (
 )
 
 var (
-	TestCases = []*taste.Case{
+	Scenario = []*taste.Case{
 		{
 			Name: "version_success",
 			Request: &taste.Request{

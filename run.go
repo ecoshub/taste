@@ -9,23 +9,23 @@ import (
 	"github.com/ecoshub/taste/utils"
 )
 
-func (sc *Scenario) hasOnlyRunMe() (*Case, bool) {
-	for _, c := range sc.cases {
-		if c.OnlyRunMe {
+func (sc *Tester) hasOnlyRunMe() (*Case, bool) {
+	for _, c := range sc.Scenario {
+		if c.OnlyRunThis {
 			return c, true
 		}
 	}
 	return nil, false
 }
 
-func run(sc *Scenario, c *Case, t *testing.T) {
-	if sc.runBefore != nil {
-		sc.runBefore(t)
+func run(sc *Tester, c *Case, t *testing.T) {
+	if c.RunBefore != nil {
+		c.RunBefore(t)
 	}
 
 	defer func() {
-		if sc.runAfter != nil {
-			sc.runAfter(t)
+		if c.RunAfter != nil {
+			c.RunAfter(t)
 		}
 	}()
 
@@ -36,7 +36,7 @@ func run(sc *Scenario, c *Case, t *testing.T) {
 
 	req.Header = c.Request.Header
 
-	resp, err := utils.Do(sc.server, sc.mockIP, req)
+	resp, err := utils.Do(sc.handler, sc.ip, req)
 	utils.CheckExpectError(t, "handler-do", err, nil)
 
 	utils.CheckEqual(t, "response-status-code", resp.StatusCode, c.Expect.Status)
