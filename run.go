@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"io"
 	"net/http"
-	"taste/utils"
 	"testing"
+
+	"github.com/ecoshub/taste/utils"
 )
 
 func (sc *Scenario) hasOnlyRunMe() (*Case, bool) {

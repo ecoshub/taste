@@ -1,4 +1,4 @@
-module taste
+module github.com/ecoshub/taste
 
 go 1.19
 

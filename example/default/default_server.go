@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"taste"
-	"taste/example"
+
+	"github.com/ecoshub/taste"
+	"github.com/ecoshub/taste/example"
 )
 
 func exampleDefaultServer() *taste.HTTPMockServer {

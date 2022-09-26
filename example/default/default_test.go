@@ -1,9 +1,10 @@
 package main
 
 import (
-	"taste"
-	"taste/example"
 	"testing"
+
+	"github.com/ecoshub/taste"
+	"github.com/ecoshub/taste/example"
 )
 
 func TestCustomServer(t *testing.T) {

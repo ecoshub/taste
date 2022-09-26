@@ -2,7 +2,8 @@ package example
 
 import (
 	"net/http"
-	"taste"
+
+	"github.com/ecoshub/taste"
 )
 
 var (

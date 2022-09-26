@@ -2,8 +2,8 @@ package main
 
 import (
 	"net/http"
-	"taste/example"
 
+	"github.com/ecoshub/taste/example"
 	"github.com/gin-gonic/gin"
 )
 
