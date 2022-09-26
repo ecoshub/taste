@@ -12,7 +12,7 @@ func TestCustomServer(t *testing.T) {
 	server := exampleDefaultServer()
 
 	// create a tester with server handler and scenario
-	tester := taste.NewTester(server.Handler(), example.Scenario)
+	tester := taste.NewTester(example.Scenario, server.Handler())
 
 	// run the scenario
 	tester.Run(t)

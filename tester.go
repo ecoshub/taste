@@ -13,11 +13,24 @@ type Tester struct {
 	ip      string
 }
 
-func NewTester(handler http.Handler, sc scenario) *Tester {
-	return &Tester{Scenario: sc, handler: handler}
+func NewTester(sc scenario, optionalHandler ...http.Handler) *Tester {
+	var h http.Handler
+	if len(optionalHandler) == 0 {
+		h = nil
+	} else {
+		h = optionalHandler[0]
+	}
+	return &Tester{Scenario: sc, handler: h}
+}
+
+func (tt *Tester) AttachHandler(handler http.Handler) {
+	tt.handler = handler
 }
 
 func (tt *Tester) Run(t *testing.T) {
+	if tt.handler == nil {
+		t.Fatal("there is  no handler to test this scenario. please attach a handler with 'AttachHandler' function")
+	}
 	c, exists := tt.hasOnlyRunMe()
 	if exists {
 		fmt.Printf("RUN [ONLY]\t%s\n", c.Name)
