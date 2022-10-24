@@ -3,16 +3,16 @@ package main
 import (
 	"testing"
 
-	"github.com/ecoshub/taste"
-	"github.com/ecoshub/taste/example"
+	example "github.com/ecoshub/taste/example/server"
+	"github.com/ecoshub/taste/server"
 )
 
 func TestGINServer(t *testing.T) {
 	// basic gin server
-	server := exampleGINServer()
+	s := exampleGINServer()
 
 	// create a tester with server handler and scenario
-	scenario := taste.NewTester(example.Scenario, server.Handler())
+	scenario := server.NewTester(example.Scenario, s.Handler())
 
 	// run the scenario
 	scenario.Run(t)

@@ -5,12 +5,12 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/ecoshub/taste"
-	"github.com/ecoshub/taste/example"
+	example "github.com/ecoshub/taste/example/server"
+	"github.com/ecoshub/taste/server"
 )
 
-func exampleDefaultServer() *taste.HTTPMockServer {
-	s := taste.NewHTTPServer("127.0.0.1")
+func exampleDefaultServer() *server.HTTPMock {
+	s := server.NewHTTPServer("127.0.0.1")
 	s.Handle("GET", "/api/v1/version", versionHandler)
 	s.Handle("GET", "/api/v1/users", usersHandler)
 	s.Handle("GET", "/api/v1/user", userHandler)

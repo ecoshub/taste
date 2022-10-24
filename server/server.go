@@ -1,4 +1,4 @@
-package taste
+package server
 
 import (
 	"net/http"
@@ -8,25 +8,25 @@ const (
 	defaultMockIP string = "127.0.0.1"
 )
 
-type HTTPMockServer struct {
+type HTTPMock struct {
 	mux *http.ServeMux
 	ip  string
 }
 
-func NewHTTPServer(mockIPoptional ...string) *HTTPMockServer {
+func NewHTTPServer(mockIPoptional ...string) *HTTPMock {
 	mockIP := defaultMockIP
 	if len(mockIPoptional) == 1 {
 		mockIP = mockIPoptional[0]
 	}
 	mux := http.NewServeMux()
-	return &HTTPMockServer{mux: mux, ip: mockIP}
+	return &HTTPMock{mux: mux, ip: mockIP}
 }
 
-func (s *HTTPMockServer) Handler() http.Handler {
+func (s *HTTPMock) Handler() http.Handler {
 	return s.mux
 }
 
-func (s *HTTPMockServer) Handle(method, path string, handlerFunc http.HandlerFunc) {
+func (s *HTTPMock) Handle(method, path string, handlerFunc http.HandlerFunc) {
 	s.mux.HandleFunc(path, methodMiddleware(method, handlerFunc))
 }
 

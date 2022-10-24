@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	"github.com/ecoshub/taste/example"
+	example "github.com/ecoshub/taste/example/server"
 	"github.com/gin-gonic/gin"
 )
 

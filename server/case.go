@@ -1,4 +1,4 @@
-package taste
+package server
 
 import (
 	"net/http"
@@ -19,7 +19,7 @@ type Case struct {
 
 type Request struct {
 	Method     string
-	URL        string
+	Path       string
 	Header     http.Header
 	Query      url.Values
 	Body       []byte

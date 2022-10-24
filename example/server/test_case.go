@@ -3,7 +3,7 @@ package example
 import (
 	"net/http"
 
-	"github.com/ecoshub/taste"
+	"github.com/ecoshub/taste/server"
 )
 
 var (
@@ -11,58 +11,58 @@ var (
 )
 
 var (
-	Scenario = []*taste.Case{
+	Scenario = []*server.Case{
 		{
 			Name: "version_success",
-			Request: &taste.Request{
+			Request: &server.Request{
 				Method: http.MethodGet,
-				URL:    "/api/v1/version",
+				Path:   "/api/v1/version",
 			},
-			Expect: &taste.Expect{
+			Expect: &server.Expect{
 				Status:     http.StatusOK,
 				BodyString: "v1.0.0",
 			},
 		},
 		{
 			Name: "users_success",
-			Request: &taste.Request{
+			Request: &server.Request{
 				Method: http.MethodGet,
-				URL:    "/api/v1/users",
+				Path:   "/api/v1/users",
 			},
-			Expect: &taste.Expect{
+			Expect: &server.Expect{
 				Status: http.StatusOK,
 				Body:   MarshalDiscardError(Users),
 			},
 		},
 		{
 			Name: "user_fail",
-			Request: &taste.Request{
+			Request: &server.Request{
 				Method: http.MethodGet,
-				URL:    "/api/v1/user?name=corey",
+				Path:   "/api/v1/user?name=corey",
 			},
-			Expect: &taste.Expect{
+			Expect: &server.Expect{
 				Status: http.StatusNotFound,
 				Body:   []byte("404 page not found"),
 			},
 		},
 		{
 			Name: "user_get_eco_success",
-			Request: &taste.Request{
+			Request: &server.Request{
 				Method: http.MethodGet,
-				URL:    "/api/v1/user?name=eco",
+				Path:   "/api/v1/user?name=eco",
 			},
-			Expect: &taste.Expect{
+			Expect: &server.Expect{
 				Status: http.StatusOK,
 				Body:   MarshalDiscardError(Users[0]),
 			},
 		},
 		{
 			Name: "user_get_any_success",
-			Request: &taste.Request{
+			Request: &server.Request{
 				Method: http.MethodGet,
-				URL:    "/api/v1/user?name=any",
+				Path:   "/api/v1/user?name=any",
 			},
-			Expect: &taste.Expect{
+			Expect: &server.Expect{
 				Status: http.StatusOK,
 				Body:   MarshalDiscardError(Users[1]),
 				Header: http.Header{
@@ -72,12 +72,12 @@ var (
 		},
 		{
 			Name: "user_new_success",
-			Request: &taste.Request{
+			Request: &server.Request{
 				Method: http.MethodPost,
-				URL:    "/api/v1/user/new",
+				Path:   "/api/v1/user/new",
 				Body:   MarshalDiscardError(TestUser),
 			},
-			Expect: &taste.Expect{
+			Expect: &server.Expect{
 				Status: http.StatusOK,
 				Body:   MarshalDiscardError(append(Users, TestUser)),
 				Header: http.Header{

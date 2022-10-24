@@ -1,4 +1,4 @@
-package taste
+package server
 
 import (
 	"bytes"
@@ -31,7 +31,7 @@ func run(sc *Tester, c *Case, t *testing.T) {
 
 	buff := resolveBody(c.Request)
 
-	req, err := http.NewRequest(c.Request.Method, c.Request.URL, buff)
+	req, err := http.NewRequest(c.Request.Method, c.Request.Path, buff)
 	utils.CheckExpectError(t, "request-creation", err, nil)
 
 	req.Header = c.Request.Header
@@ -58,7 +58,6 @@ func run(sc *Tester, c *Case, t *testing.T) {
 	} else {
 		utils.CheckEqual(t, "response-body", string(body), string(c.Expect.Body))
 	}
-
 }
 
 func resolveBody(r *Request) *bytes.Buffer {

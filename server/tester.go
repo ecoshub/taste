@@ -1,4 +1,4 @@
-package taste
+package server
 
 import (
 	"fmt"
