@@ -1,3 +1,6 @@
+# WORK IN PROGRESS
+# Do not use until first release.
+
 ## Taste
 
 *A taste of simplicity.*
