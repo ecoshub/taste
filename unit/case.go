@@ -9,18 +9,33 @@ import (
 type scenario []*Case
 
 type Case struct {
-	Name   string
-	Func   []interface{}
-	Expect []interface{}
+	Name        string
+	Func        []interface{}
+	Expect      []interface{}
+	OnlyRunThis bool
 }
 
 func Func(i ...interface{}) []interface{}    { return i }
 func Returns(i ...interface{}) []interface{} { return i }
 
 func Test(t *testing.T, scenario scenario) {
+	c, ok := hasOnlyRunMe(scenario)
+	if ok {
+		c.Test(t)
+		return
+	}
 	for _, c := range scenario {
 		c.Test(t)
 	}
+}
+
+func hasOnlyRunMe(scenario scenario) (*Case, bool) {
+	for _, c := range scenario {
+		if c.OnlyRunThis {
+			return c, true
+		}
+	}
+	return nil, false
 }
 
 func (c *Case) Test(t *testing.T) {
