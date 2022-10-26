@@ -31,4 +31,5 @@ type Expect struct {
 	Body       []byte
 	BodyString string
 	Header     http.Header
+	Error      error
 }

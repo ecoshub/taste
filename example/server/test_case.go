@@ -1,13 +1,14 @@
 package example
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/ecoshub/taste/server"
 )
 
 var (
-	TestUser *User = &User{ID: "718c9a02", Name: "john", Age: 20}
+	TestUser []byte = []byte(`{"id":"718c9a02","name":"john","age":20}`)
 )
 
 var (
@@ -19,8 +20,8 @@ var (
 				Path:   "/api/v1/version",
 			},
 			Expect: &server.Expect{
-				Status:     http.StatusOK,
-				BodyString: "v1.0.0",
+				Status: http.StatusOK,
+				Body:   []byte("v1.0.0"),
 			},
 		},
 		{
@@ -31,7 +32,12 @@ var (
 			},
 			Expect: &server.Expect{
 				Status: http.StatusOK,
-				Body:   MarshalDiscardError(Users),
+				Body: []byte(`
+					[
+						{"id":"a4fb4201","name":"eco","age":30},
+						{"id":"43bd1a0d","name":"any","age":29}
+					]`),
+				Error: errors.New("type expectation failed. expected type: 'int', got type: 'string', path: '[0 id]'"),
 			},
 		},
 		{
@@ -53,7 +59,7 @@ var (
 			},
 			Expect: &server.Expect{
 				Status: http.StatusOK,
-				Body:   MarshalDiscardError(Users[0]),
+				Body:   []byte(`{"id":"a4fb4201","name":"eco","age":30}`),
 			},
 		},
 		{
@@ -64,7 +70,7 @@ var (
 			},
 			Expect: &server.Expect{
 				Status: http.StatusOK,
-				Body:   MarshalDiscardError(Users[1]),
+				Body:   []byte(`{"id":"43bd1a0d","name":"any","age":29}`),
 				Header: http.Header{
 					"Content-Type": []string{"application/json; charset=utf-8"},
 				},
@@ -75,11 +81,16 @@ var (
 			Request: &server.Request{
 				Method: http.MethodPost,
 				Path:   "/api/v1/user/new",
-				Body:   MarshalDiscardError(TestUser),
+				Body:   []byte(`{"id":"718c9a02","name":"john","age":20}`),
 			},
 			Expect: &server.Expect{
 				Status: http.StatusOK,
-				Body:   MarshalDiscardError(append(Users, TestUser)),
+				Body: []byte(`
+					[
+						{"id":"a4fb4201","name":"eco","age":30},
+						{"id":"43bd1a0d","name":"any","age":29},
+						{"id":"718c9a02","name":"john","age":20}
+					]`),
 				Header: http.Header{
 					"Content-Type": []string{"application/json; charset=utf-8"},
 				},

@@ -51,13 +51,18 @@ func run(sc *Tester, c *Case, t *testing.T) {
 	}
 	defer resp.Body.Close()
 
-	if c.Expect.Body == nil {
-		if c.Expect.BodyString != "" {
-			utils.CheckEqual(t, "response-body", string(body), c.Expect.BodyString)
+	err = utils.Validate(c.Expect.Body, body)
+	// got error
+	if err != nil {
+		// expecting error
+		if c.Expect.Error != nil {
+			utils.CheckEqual(t, "error", err, c.Expect.Error)
+			return
 		}
-	} else {
-		utils.CheckEqual(t, "response-body", string(body), string(c.Expect.Body))
+		// utils.Fail(t, "", c.Expect.Body, body)
+		t.Fatalf("err: %v. expected: %s, got: %s", err, c.Expect.Body, body)
 	}
+
 }
 
 func resolveBody(r *Request) *bytes.Buffer {
