@@ -8,11 +8,6 @@ import (
 	"github.com/ecoshub/jin"
 )
 
-// const (
-// 	wildcardSymbol string = "*"
-// 	pathSeparator  string = ":"
-// )
-
 var (
 	ErrStringTypeExpectation  string = "type expectation failed. expected type: '%s', got type: '%s', path: '%s'"
 	ErrStringValueExpectation string = "value expectation failed. expected value: '%s', got value: '%s', path: '%s'"

@@ -51,7 +51,11 @@ func run(sc *Tester, c *Case, t *testing.T) {
 	}
 	defer resp.Body.Close()
 
-	err = utils.Validate(c.Expect.Body, body)
+	if c.Request.BodyString != "" {
+		err = utils.Validate([]byte(c.Expect.BodyString), body)
+	} else {
+		err = utils.Validate(c.Expect.Body, body)
+	}
 	// got error
 	if err != nil {
 		// expecting error
