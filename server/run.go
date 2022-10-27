@@ -51,11 +51,12 @@ func run(sc *Tester, c *Case, t *testing.T) {
 	}
 	defer resp.Body.Close()
 
-	if c.Request.BodyString != "" {
-		err = utils.Validate([]byte(c.Expect.BodyString), body)
-	} else {
-		err = utils.Validate(c.Expect.Body, body)
+	expectedBody := c.Expect.Body
+	if c.Expect.BodyString != "" {
+		expectedBody = []byte(c.Expect.BodyString)
 	}
+
+	err = utils.Validate(expectedBody, body)
 	// got error
 	if err != nil {
 		// expecting error
@@ -63,7 +64,6 @@ func run(sc *Tester, c *Case, t *testing.T) {
 			utils.CheckEqual(t, "error", err, c.Expect.Error)
 			return
 		}
-		// utils.Fail(t, "", c.Expect.Body, body)
 		t.Fatalf("err: %v. expected: %s, got: %s", err, c.Expect.Body, body)
 	}
 
