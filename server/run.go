@@ -10,7 +10,7 @@ import (
 )
 
 func (sc *Tester) hasOnlyRunMe() (*Case, bool) {
-	for _, c := range sc.Scenario {
+	for _, c := range sc.scenario {
 		if c.OnlyRunThis {
 			return c, true
 		}
@@ -18,7 +18,7 @@ func (sc *Tester) hasOnlyRunMe() (*Case, bool) {
 	return nil, false
 }
 
-func run(sc *Tester, c *Case, t *testing.T) {
+func run(tester *Tester, c *Case, t *testing.T) {
 	if c.RunBefore != nil {
 		c.RunBefore(t)
 	}
@@ -29,14 +29,20 @@ func run(sc *Tester, c *Case, t *testing.T) {
 		}
 	}()
 
-	buff := resolveBody(c.Request)
+	body := resolveBody(c.Request)
+
+	var err error
+	body, err = utils.ProcessBody(tester.store, body)
+	utils.CheckExpectError(t, "request-body-process", err, nil)
+
+	buff := bytes.NewBuffer(body)
 
 	req, err := http.NewRequest(c.Request.Method, c.Request.Path, buff)
 	utils.CheckExpectError(t, "request-creation", err, nil)
 
 	req.Header = c.Request.Header
 
-	resp, err := utils.Do(sc.handler, sc.ip, req)
+	resp, err := utils.Do(tester.handler, tester.ip, req)
 	utils.CheckExpectError(t, "handler-do", err, nil)
 
 	utils.CheckEqual(t, "response-status-code", resp.StatusCode, c.Expect.Status)
@@ -45,13 +51,21 @@ func run(sc *Tester, c *Case, t *testing.T) {
 		utils.CheckEqual(t, "response-header", resp.Header, c.Expect.Header)
 	}
 
-	body, err := io.ReadAll(resp.Body)
+	body, err = io.ReadAll(resp.Body)
 	if err != nil {
 		t.Fatal("response body read error. err:", err)
 	}
 	defer resp.Body.Close()
 
-	err = utils.Validate(c.Expect.Body, body)
+	expectedBody := c.Expect.Body
+	if c.Expect.BodyString != "" {
+		expectedBody = []byte(c.Expect.BodyString)
+	}
+
+	expectedBody, err = utils.ProcessBody(tester.store, expectedBody)
+	utils.CheckExpectError(t, "expect-body-process", err, nil)
+
+	err = utils.Validate(expectedBody, body)
 	// got error
 	if err != nil {
 		// expecting error
@@ -59,20 +73,23 @@ func run(sc *Tester, c *Case, t *testing.T) {
 			utils.CheckEqual(t, "error", err, c.Expect.Error)
 			return
 		}
-		// utils.Fail(t, "", c.Expect.Body, body)
-		t.Fatalf("err: %v. expected: %s, got: %s", err, c.Expect.Body, body)
+		t.Fatalf("err: %v. expected: %s, got: %s", err, expectedBody, body)
+	}
+
+	if c.StoreResponse {
+		tester.store[c.Name] = body
 	}
 
 }
 
-func resolveBody(r *Request) *bytes.Buffer {
+func resolveBody(r *Request) []byte {
 	if r.Body == nil {
 		if r.BodyString != "" {
-			return bytes.NewBufferString(r.BodyString)
+			return []byte(r.BodyString)
 		} else {
-			return &bytes.Buffer{}
+			return []byte{}
 		}
 	} else {
-		return bytes.NewBuffer(r.Body)
+		return r.Body
 	}
 }

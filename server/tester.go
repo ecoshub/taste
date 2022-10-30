@@ -7,10 +7,11 @@ import (
 )
 
 type Tester struct {
-	Scenario scenario
+	scenario scenario
 
 	handler http.Handler
 	ip      string
+	store   map[string][]byte
 }
 
 func NewTester(sc scenario, optionalHandler ...http.Handler) *Tester {
@@ -20,7 +21,10 @@ func NewTester(sc scenario, optionalHandler ...http.Handler) *Tester {
 	} else {
 		h = optionalHandler[0]
 	}
-	return &Tester{Scenario: sc, handler: h}
+	return &Tester{
+		scenario: sc,
+		handler:  h,
+		store:    make(map[string][]byte)}
 }
 
 func (tt *Tester) AttachHandler(handler http.Handler) {
@@ -40,9 +44,17 @@ func (tt *Tester) Run(t *testing.T) {
 		return
 	}
 
-	for _, c := range tt.Scenario {
+	for _, c := range tt.scenario {
 		t.Run(c.Name, func(t *testing.T) {
 			run(tt, c, t)
 		})
 	}
+}
+
+func (tt *Tester) ResetStore() {
+	tt.store = make(map[string][]byte)
+}
+
+func (tt *Tester) Store(key string, body []byte) {
+	tt.store[key] = body
 }

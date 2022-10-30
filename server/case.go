@@ -9,12 +9,13 @@ import (
 type scenario []*Case
 
 type Case struct {
-	Name        string
-	OnlyRunThis bool
-	Request     *Request
-	Expect      *Expect
-	RunBefore   func(t *testing.T)
-	RunAfter    func(t *testing.T)
+	Name          string
+	OnlyRunThis   bool
+	StoreResponse bool
+	Request       *Request
+	Expect        *Expect
+	RunBefore     func(t *testing.T)
+	RunAfter      func(t *testing.T)
 }
 
 type Request struct {
