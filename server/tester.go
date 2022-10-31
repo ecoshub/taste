@@ -58,3 +58,7 @@ func (tt *Tester) ResetStore() {
 func (tt *Tester) Store(key string, body []byte) {
 	tt.store[key] = body
 }
+
+func (tt *Tester) StoreKeyValue(key, value string) {
+	tt.Store(key, []byte(value))
+}
