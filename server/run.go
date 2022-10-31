@@ -29,7 +29,7 @@ func run(tester *Tester, c *Case, t *testing.T) {
 		}
 	}()
 
-	body := resolveBody(c.Request)
+	body := resolveBody(c.Request.Body, c.Request.BodyString)
 
 	var err error
 	body, err = utils.ProcessBody(tester.store, body)
@@ -57,10 +57,7 @@ func run(tester *Tester, c *Case, t *testing.T) {
 	}
 	defer resp.Body.Close()
 
-	expectedBody := c.Expect.Body
-	if c.Expect.BodyString != "" {
-		expectedBody = []byte(c.Expect.BodyString)
-	}
+	expectedBody := resolveBody(c.Expect.Body, c.Expect.BodyString)
 
 	expectedBody, err = utils.ProcessBody(tester.store, expectedBody)
 	utils.CheckExpectError(t, "expect-body-process", err, nil)
@@ -82,14 +79,14 @@ func run(tester *Tester, c *Case, t *testing.T) {
 
 }
 
-func resolveBody(r *Request) []byte {
-	if r.Body == nil {
-		if r.BodyString != "" {
-			return []byte(r.BodyString)
+func resolveBody(body []byte, bodyString string) []byte {
+	if body == nil {
+		if bodyString != "" {
+			return []byte(bodyString)
 		} else {
 			return []byte{}
 		}
 	} else {
-		return r.Body
+		return body
 	}
 }

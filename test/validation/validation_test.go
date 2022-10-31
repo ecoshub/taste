@@ -316,6 +316,22 @@ var (
 			)),
 			Expect: unit.Returns(errors.New("unexpected path. path: [items 0 games 2]")),
 		},
+		{
+			Name: "validation_null_values",
+			Func: unit.Func(utils.Validate(
+				[]byte(`{
+					"name":"", 
+					"age":0, 
+					"body":{
+						"test":"",
+						"emre":null,
+						"run":false,
+						}
+					}`),
+				[]byte(`{"name":"", "age":0, "body":{"test":"","emre":null,"run":false}}`),
+			)),
+			Expect: unit.Returns(nil),
+		},
 	}
 )
 
