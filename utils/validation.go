@@ -211,15 +211,6 @@ func resolve(key, value string, path []string) (*expect, error) {
 }
 
 func tree(body []byte, pathExpect []string, pathReal []string, f func(pathExpect []string, pathReal []string) (bool, error)) error {
-	if len(body) == 0 {
-		return nil
-	}
-
-	t, err := jin.GetType(body)
-	if err != nil {
-		return err
-	}
-
 	keepRunning, err := f(pathExpect, pathReal)
 	if err != nil {
 		return err
@@ -227,6 +218,15 @@ func tree(body []byte, pathExpect []string, pathReal []string, f func(pathExpect
 
 	if !keepRunning {
 		return nil
+	}
+
+	if len(body) == 0 {
+		return nil
+	}
+
+	t, err := jin.GetType(body)
+	if err != nil {
+		return err
 	}
 
 	switch t {
@@ -256,7 +256,6 @@ func tree(body []byte, pathExpect []string, pathReal []string, f func(pathExpect
 			pathReal = append(pathReal, indexString)
 			err = tree(val, pathExpect, pathReal, f)
 			if err != nil {
-				fmt.Println("err", err)
 				return false, err
 			}
 			pathExpect = pathExpect[:len(pathExpect)-1]
