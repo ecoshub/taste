@@ -6,8 +6,6 @@ import (
 	"testing"
 )
 
-type scenario []*Case
-
 type Case struct {
 	Name        string
 	Func        []interface{}
@@ -18,7 +16,7 @@ type Case struct {
 func Func(i ...interface{}) []interface{}    { return i }
 func Returns(i ...interface{}) []interface{} { return i }
 
-func Test(t *testing.T, scenario scenario) {
+func Test(t *testing.T, scenario []*Case) {
 	c, ok := hasOnlyRunMe(scenario)
 	if ok {
 		c.Test(t)
@@ -29,7 +27,7 @@ func Test(t *testing.T, scenario scenario) {
 	}
 }
 
-func hasOnlyRunMe(scenario scenario) (*Case, bool) {
+func hasOnlyRunMe(scenario []*Case) (*Case, bool) {
 	for _, c := range scenario {
 		if c.OnlyRunThis {
 			return c, true

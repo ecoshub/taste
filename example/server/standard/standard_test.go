@@ -12,8 +12,8 @@ func TestCustomServer(t *testing.T) {
 	s := exampleDefaultServer()
 
 	// create a tester with server handler and scenario
-	tester := server.NewTester(example.Scenario, s.Handler())
+	tester := server.NewTester(t, s.Handler())
 
 	// run the scenario
-	tester.Run(t)
+	tester.Run(example.Scenario)
 }

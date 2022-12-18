@@ -1,7 +1,6 @@
 package example
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/ecoshub/taste/server"
@@ -14,13 +13,15 @@ var (
 var (
 	Scenario = []*server.Case{
 		{
-			Name: "version_success",
+			Name:        "version_success",
+			CheckHeader: true,
 			Request: &server.Request{
 				Method: http.MethodGet,
 				Path:   "/api/v1/version",
 			},
 			Expect: &server.Expect{
 				Status:     http.StatusOK,
+				Header:     server.HeaderContentPlainText,
 				BodyString: "v1.0.0",
 			},
 		},
@@ -37,7 +38,6 @@ var (
 						{"id":"a4fb4201","name":"eco","age":30},
 						{"id":"43bd1a0d","name":"any","age":29}
 					]`,
-				Error: errors.New("type expectation failed. expected type: 'int', got type: 'string', path: '[0 id]'"),
 			},
 		},
 		{
@@ -63,7 +63,8 @@ var (
 			},
 		},
 		{
-			Name: "user_get_any_success",
+			Name:        "user_get_any_success",
+			CheckHeader: true,
 			Request: &server.Request{
 				Method: http.MethodGet,
 				Path:   "/api/v1/user?name=any",
@@ -71,13 +72,12 @@ var (
 			Expect: &server.Expect{
 				Status:     http.StatusOK,
 				BodyString: `{"id":"43bd1a0d","name":"any","age":29}`,
-				Header: http.Header{
-					"Content-Type": []string{"application/json; charset=utf-8"},
-				},
+				Header:     server.HeaderContentApplicationJSON,
 			},
 		},
 		{
-			Name: "user_new_success",
+			Name:        "user_new_success",
+			CheckHeader: true,
 			Request: &server.Request{
 				Method:     http.MethodPost,
 				Path:       "/api/v1/user/new",
@@ -91,9 +91,7 @@ var (
 						{"id":"43bd1a0d","name":"any","age":29},
 						{"id":"718c9a02","name":"john","age":20}
 					]`,
-				Header: http.Header{
-					"Content-Type": []string{"application/json; charset=utf-8"},
-				},
+				Header: server.HeaderContentApplicationJSON,
 			},
 		},
 	}

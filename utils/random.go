@@ -3,8 +3,7 @@ package utils
 import "math/rand"
 
 const (
-	hex      string = "01234567890abcdef"
-	idLength int    = 16
+	hex string = "01234567890abcdef"
 )
 
 func RandomHash(length int) string {

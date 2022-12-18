@@ -7,46 +7,36 @@ import (
 )
 
 type Tester struct {
-	scenario scenario
-
+	t       *testing.T
 	handler http.Handler
 	ip      string
 	store   map[string][]byte
 }
 
-func NewTester(sc scenario, optionalHandler ...http.Handler) *Tester {
-	var h http.Handler
-	if len(optionalHandler) == 0 {
-		h = nil
-	} else {
-		h = optionalHandler[0]
-	}
+func NewTester(t *testing.T, hadler http.Handler) *Tester {
 	return &Tester{
-		scenario: sc,
-		handler:  h,
-		store:    make(map[string][]byte)}
+		t:       t,
+		handler: hadler,
+		store:   make(map[string][]byte)}
 }
 
-func (tt *Tester) AttachHandler(handler http.Handler) {
-	tt.handler = handler
+func (tt *Tester) SetIP(ip string) {
+	tt.ip = ip
 }
 
-func (tt *Tester) Run(t *testing.T) {
-	if tt.handler == nil {
-		t.Fatal("there is  no handler to test this scenario. please attach a handler with 'AttachHandler' function")
-	}
-	c, exists := tt.hasOnlyRunMe()
+func (tt *Tester) Run(scenario []*Case) {
+	c, exists := tt.hasOnlyRunMe(scenario)
 	if exists {
 		fmt.Printf("RUN [ONLY]\t%s\n", c.Name)
-		t.Run(c.Name, func(t *testing.T) {
-			run(tt, c, t)
+		tt.t.Run(c.Name, func(t *testing.T) {
+			testTheCase(tt, c, t)
 		})
 		return
 	}
 
-	for _, c := range tt.scenario {
-		t.Run(c.Name, func(t *testing.T) {
-			run(tt, c, t)
+	for _, c := range scenario {
+		tt.t.Run(c.Name, func(t *testing.T) {
+			testTheCase(tt, c, t)
 		})
 	}
 }

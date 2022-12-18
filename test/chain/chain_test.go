@@ -82,8 +82,8 @@ func TestCore(t *testing.T) {
 	s := NewServer()
 
 	// create a tester with server handler and scenario
-	tester := server.NewTester(Scenario, s.Handler())
+	tester := server.NewTester(t, s.Handler())
 
 	// run the scenario
-	tester.Run(t)
+	tester.Run(Scenario)
 }

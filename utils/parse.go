@@ -11,11 +11,11 @@ const (
 	symbolEnd   string = ">>"
 )
 
-func ProcessBody(request map[string][]byte, symbol []byte) ([]byte, error) {
+func InPlaceStoredValues(request map[string][]byte, symbol []byte) ([]byte, error) {
 	var err error
 	done := false
 	for !done {
-		symbol, done, err = processBodyCore(request, symbol)
+		symbol, done, err = inPlaceStoredValues(request, symbol)
 		if err != nil {
 			return nil, err
 		}
@@ -23,7 +23,7 @@ func ProcessBody(request map[string][]byte, symbol []byte) ([]byte, error) {
 	return symbol, nil
 }
 
-func processBodyCore(request map[string][]byte, symbol []byte) ([]byte, bool, error) {
+func inPlaceStoredValues(request map[string][]byte, symbol []byte) ([]byte, bool, error) {
 	stringBody := string(symbol)
 	start := strings.Index(stringBody, symbolStart)
 	if start == -1 {

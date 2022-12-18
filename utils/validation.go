@@ -27,21 +27,14 @@ func Validate(expect, got []byte) error {
 	if string(expect) == string(got) {
 		return nil
 	}
-	if len(expect) == 0 {
-		return nil
-	}
-	ok, err := jin.IsEmpty(expect)
-	if err != nil {
-		return err
-	}
-	if ok {
-		return nil
+	if len(expect) == 0 && len(got) != 0 {
+		return fmt.Errorf("no expectation specified but got response body. body: '%s'", got)
 	}
 	pathExpect := []string{}
 	pathReal := []string{}
 	pathsReal := make([][]string, 0, 8)
 	pathsExpected := make([][]string, 0, 8)
-	err = tree(expect, pathExpect, pathReal, func(pathExpect []string, pathReal []string) (bool, error) {
+	err := tree(expect, pathExpect, pathReal, func(pathExpect []string, pathReal []string) (bool, error) {
 		if len(pathReal) == 0 {
 			return true, nil
 		}
@@ -57,6 +50,10 @@ func Validate(expect, got []byte) error {
 	})
 	if err != nil {
 		return err
+	}
+	// this means it is not a JSON
+	if len(pathExpect) == 0 && len(pathsReal) == 0 {
+		return fmt.Errorf("unexpected result. got: '%s', expected: '%s'", got, expect)
 	}
 	err = compare(expect, got, pathsExpected, pathsReal)
 	if err != nil {

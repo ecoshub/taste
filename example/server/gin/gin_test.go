@@ -11,9 +11,9 @@ func TestGINServer(t *testing.T) {
 	// basic gin server
 	s := exampleGINServer()
 
-	// create a tester with server handler and scenario
-	scenario := server.NewTester(example.Scenario, s.Handler())
+	// create a tester with server handler and tester
+	tester := server.NewTester(t, s.Handler())
 
-	// run the scenario
-	scenario.Run(t)
+	// run the tester
+	tester.Run(example.Scenario)
 }

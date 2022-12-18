@@ -2,16 +2,19 @@ package server
 
 import (
 	"net/http"
-	"net/url"
 	"testing"
 )
 
-type scenario []*Case
+var (
+	HeaderContentPlainText       = http.Header{"Content-Type": []string{"text/plain"}}
+	HeaderContentApplicationJSON = http.Header{"Content-Type": []string{"application/json; charset=utf-8"}}
+)
 
 type Case struct {
 	Name          string
 	OnlyRunThis   bool
 	StoreResponse bool
+	CheckHeader   bool
 	Request       *Request
 	Expect        *Expect
 	RunBefore     func(t *testing.T)
@@ -22,8 +25,6 @@ type Request struct {
 	Method     string
 	Path       string
 	Header     http.Header
-	Query      url.Values
-	Body       []byte
 	BodyString string
 }
 
