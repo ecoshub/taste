@@ -3,8 +3,8 @@ package main
 import (
 	"testing"
 
+	"github.com/ecoshub/taste"
 	example "github.com/ecoshub/taste/example/server"
-	"github.com/ecoshub/taste/server"
 )
 
 func TestCustomServer(t *testing.T) {
@@ -12,7 +12,7 @@ func TestCustomServer(t *testing.T) {
 	s := exampleDefaultServer()
 
 	// create a tester with server handler and scenario
-	tester := server.NewTester(t, s.Handler())
+	tester := taste.NewHTTPServerTester(t, s.Handler())
 
 	// run the scenario
 	tester.Run(example.Scenario)

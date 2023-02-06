@@ -1,4 +1,4 @@
-package utils
+package taste
 
 import (
 	"strings"
@@ -11,11 +11,12 @@ const (
 	symbolEnd   string = ">>"
 )
 
-func InPlaceStoredValues(request map[string][]byte, symbol []byte) ([]byte, error) {
+// inPlaceStoredValues put in place stored values
+func inPlaceStoredValues(request map[string][]byte, symbol []byte) ([]byte, error) {
 	var err error
 	done := false
 	for !done {
-		symbol, done, err = inPlaceStoredValues(request, symbol)
+		symbol, done, err = inPlaceStoredValuesCore(request, symbol)
 		if err != nil {
 			return nil, err
 		}
@@ -23,7 +24,8 @@ func InPlaceStoredValues(request map[string][]byte, symbol []byte) ([]byte, erro
 	return symbol, nil
 }
 
-func inPlaceStoredValues(request map[string][]byte, symbol []byte) ([]byte, bool, error) {
+// inPlaceStoredValuesCore put in place stored values core function
+func inPlaceStoredValuesCore(request map[string][]byte, symbol []byte) ([]byte, bool, error) {
 	stringBody := string(symbol)
 	start := strings.Index(stringBody, symbolStart)
 	if start == -1 {

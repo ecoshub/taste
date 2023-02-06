@@ -1,4 +1,4 @@
-package utils
+package taste
 
 import (
 	"fmt"
@@ -9,31 +9,47 @@ import (
 )
 
 var (
-	ErrStringTypeExpectation  string = "type expectation failed. expected type: '%s', got type: '%s', path: '%s'"
-	ErrStringValueExpectation string = "value expectation failed. expected value: '%s', got value: '%s', path: '%s'"
-	ErrStringMissingType      string = "field must define a type. filed: '%s'"
-	ErrStringRequiredField    string = "field is required. field: '%s'"
+	errStringTypeExpectation  string = "type expectation failed. expected type: '%s', got type: '%s', path: '%s'"
+	errStringValueExpectation string = "value expectation failed. expected value: '%s', got value: '%s', path: '%s'"
+	errStringMissingType      string = "field must define a type. filed: '%s'"
+	errStringRequiredField    string = "field is required. field: '%s'"
 )
 
+// expect parsed expectation
 type expect struct {
-	_field      string
-	_value      string
-	_type       string
-	_required   bool
-	_isWildcard bool
+	field      string
+	value      string
+	jsonType   string
+	required   bool
+	isWildcard bool
 }
 
-func Validate(expect, got []byte) error {
-	if string(expect) == string(got) {
-		return nil
-	}
+// validate validate json value with expectations
+func validate(expect, got []byte) error {
+	// if no expectation defined but there is something to validate, return error
 	if len(expect) == 0 && len(got) != 0 {
 		return fmt.Errorf("no expectation specified but got response body. body: '%s'", got)
 	}
+
+	if len(got) == 0 {
+		if len(expect) == 0 {
+			return nil
+		}
+		return fmt.Errorf("expected something but got nothing (got nil body)")
+	}
+
+	// if its same return with no error
+	if string(expect) == string(got) {
+		return nil
+	}
+
+	// paths definitions
 	pathExpect := []string{}
 	pathReal := []string{}
 	pathsReal := make([][]string, 0, 8)
 	pathsExpected := make([][]string, 0, 8)
+
+	// walk through all paths anca resolve real paths vs validation schemes
 	err := tree(expect, pathExpect, pathReal, func(pathExpect []string, pathReal []string) (bool, error) {
 		if len(pathReal) == 0 {
 			return true, nil
@@ -51,10 +67,12 @@ func Validate(expect, got []byte) error {
 	if err != nil {
 		return err
 	}
+
 	// this means it is not a JSON
 	if len(pathExpect) == 0 && len(pathsReal) == 0 {
 		return fmt.Errorf("unexpected result. got: '%s', expected: '%s'", got, expect)
 	}
+
 	err = compare(expect, got, pathsExpected, pathsReal)
 	if err != nil {
 		return err
@@ -104,7 +122,7 @@ func compare(expect, got []byte, pathsExpected, pathsReal [][]string) error {
 
 		realValue, err := jin.GetString(got, realPath...)
 		exists := err == nil
-		if !e._required {
+		if !e.required {
 			if !exists {
 				continue
 			}
@@ -117,8 +135,8 @@ func compare(expect, got []byte, pathsExpected, pathsReal [][]string) error {
 
 		if err != nil {
 			if jin.ErrEqual(err, jin.ErrCodeKeyNotFound) {
-				if e._required {
-					return fmt.Errorf(ErrStringRequiredField, e._field)
+				if e.required {
+					return fmt.Errorf(errStringRequiredField, e.field)
 				}
 			} else {
 				return fmt.Errorf("%s. path: %v", err, realPath)
@@ -128,8 +146,8 @@ func compare(expect, got []byte, pathsExpected, pathsReal [][]string) error {
 		realType, err := jin.GetType(got, realPath...)
 		if err != nil {
 			if jin.ErrEqual(err, jin.ErrCodeKeyNotFound) {
-				if e._required {
-					return fmt.Errorf(ErrStringRequiredField, e._field)
+				if e.required {
+					return fmt.Errorf(errStringRequiredField, e.field)
 				}
 			} else {
 				return fmt.Errorf("%s. path: %v", err, realPath)
@@ -144,24 +162,24 @@ func compare(expect, got []byte, pathsExpected, pathsReal [][]string) error {
 			_type = processNumberType(realValue)
 		}
 
-		if realKey != e._field {
+		if realKey != e.field {
 			return fmt.Errorf("fatal parsing error. keys are not same. key: '%v', key: '%v'", realKey, expectedKey)
 		}
 
-		if e._type != "" {
-			if realType != e._type {
-				return fmt.Errorf(ErrStringTypeExpectation, e._type, realType, realPath)
+		if e.jsonType != "" {
+			if realType != e.jsonType {
+				return fmt.Errorf(errStringTypeExpectation, e.jsonType, realType, realPath)
 			}
 		} else {
 			if _type != realType {
-				return fmt.Errorf(ErrStringTypeExpectation, _type, realType, realPath)
+				return fmt.Errorf(errStringTypeExpectation, _type, realType, realPath)
 			}
 		}
 
 		if !(realType == "array" || realType == "object") {
-			if !e._isWildcard {
-				if realValue != e._value {
-					return fmt.Errorf(ErrStringValueExpectation, e._value, realValue, realPath)
+			if !e.isWildcard {
+				if realValue != e.value {
+					return fmt.Errorf(errStringValueExpectation, e.value, realValue, realPath)
 				}
 			}
 		}
@@ -184,26 +202,26 @@ func processNumberType(value string) string {
 func resolve(key, value string, path []string) (*expect, error) {
 	e := &expect{}
 	// strip '*' prefix if exists, and set the required field
+	e.required = true
 	if strings.HasPrefix(key, "*") {
 		key = key[1:]
-		e._required = false
-	} else {
-		e._required = true
+		e.required = false
 	}
+
 	tokens := strings.Split(key, "|")
 	switch len(tokens) {
 	case 0:
-		return nil, fmt.Errorf(ErrStringMissingType, path)
+		return nil, fmt.Errorf(errStringMissingType, path)
 	case 1:
-		e._field = tokens[0]
+		e.field = tokens[0]
 	default:
-		e._field = tokens[0]
-		e._type = tokens[1]
+		e.field = tokens[0]
+		e.jsonType = tokens[1]
 	}
 	if value == "*" {
-		e._isWildcard = true
+		e.isWildcard = true
 	}
-	e._value = value
+	e.value = value
 	return e, nil
 }
 

@@ -1,202 +1,199 @@
-package validation
+package taste
 
 import (
 	"errors"
 	"testing"
-
-	"github.com/ecoshub/taste/unit"
-	"github.com/ecoshub/taste/utils"
 )
 
 var (
-	scenario = []*unit.Case{
+	scenario = []*UnitTestCase{
 		{
 			Name: "validation_fuzzy_object",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(``),
 				[]byte(``),
 			)),
-			Expect: unit.Returns(nil),
+			Expect: Returns(nil),
 		},
 		{
 			Name: "validation_fuzzy_object",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(`{}`),
 				[]byte(`{}`),
 			)),
-			Expect: unit.Returns(nil),
+			Expect: Returns(nil),
 		},
 		{
 			Name: "validation_fuzzy_object",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(`{}`),
 				[]byte(``),
 			)),
-			Expect: unit.Returns(nil),
+			Expect: Returns(errors.New("expected something but got nothing (got nil body)")),
 		},
 		{
 			Name: "validation_fuzzy_object",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(`{"name":"eco","age":30,"items":["cellphone","table"]}`),
 				[]byte(`{"name":"eco","age":30,"items":["cellphone","table","chair"]}`),
 			)),
-			Expect: unit.Returns(errors.New("unexpected path. path: [items 2]")),
+			Expect: Returns(errors.New("unexpected path. path: [items 2]")),
 		},
 		{
 			Name: "validation_fuzzy_object",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(`{"name":"eco"}`),
 				[]byte(`{"name":"test"}`),
 			)),
-			Expect: unit.Returns(errors.New("value expectation failed. expected value: 'eco', got value: 'test', path: '[name]'")),
+			Expect: Returns(errors.New("value expectation failed. expected value: 'eco', got value: 'test', path: '[name]'")),
 		},
 		{
 			Name: "validation_fuzzy_object",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(`{"name":"eco"}`),
 				[]byte(`{"name":"eco"}`),
 			)),
-			Expect: unit.Returns(nil),
+			Expect: Returns(nil),
 		},
 		{
 			Name: "validation_fuzzy_object",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(`{"name":"eco","age":30}`),
 				[]byte(`{"name":"eco"}`),
 			)),
-			Expect: unit.Returns(errors.New("field is required. field: 'age'")),
+			Expect: Returns(errors.New("field is required. field: 'age'")),
 		},
 		{
 			Name: "validation_fuzzy_object",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(`{"name":"eco","age":30}`),
 				[]byte(`{"name":"eco","age":"30"}`),
 			)),
-			Expect: unit.Returns(errors.New("type expectation failed. expected type: 'int', got type: 'string', path: '[age]'")),
+			Expect: Returns(errors.New("type expectation failed. expected type: 'int', got type: 'string', path: '[age]'")),
 		},
 		{
 			Name: "validation_fuzzy_object",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(`{"name|string":"eco","age|int":30}`),
 				[]byte(`{"name":"eco","age":"30"}`),
 			)),
-			Expect: unit.Returns(errors.New("type expectation failed. expected type: 'int', got type: 'string', path: '[age]'")),
+			Expect: Returns(errors.New("type expectation failed. expected type: 'int', got type: 'string', path: '[age]'")),
 		},
 		{
 			Name: "validation_fuzzy_object",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(`{"name|string":"eco","age|int":30}`),
 				[]byte(`{"name":"eco","age":30.0}`),
 			)),
-			Expect: unit.Returns(errors.New("type expectation failed. expected type: 'int', got type: 'float', path: '[age]'")),
+			Expect: Returns(errors.New("type expectation failed. expected type: 'int', got type: 'float', path: '[age]'")),
 		},
 		{
 			Name: "validation_fuzzy_object",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(`{"name|string":"eco","age|int":30}`),
 				[]byte(`{"name":"eco","age":30}`),
 			)),
-			Expect: unit.Returns(nil),
+			Expect: Returns(nil),
 		},
 		{
 			Name: "validation_fuzzy_object",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(`{"name|string":"eco","age|int":30}`),
 				[]byte(`{"name": "eco", "age" :30}`),
 			)),
-			Expect: unit.Returns(nil),
+			Expect: Returns(nil),
 		},
 		{
 			Name: "validation_fuzzy_object",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(`{"name|string":"eco","age|int":30}`),
 				[]byte(`{"name": "eco", "age" :30, "extra":true}`),
 			)),
-			Expect: unit.Returns(errors.New("unexpected path. path: [extra]")),
+			Expect: Returns(errors.New("unexpected path. path: [extra]")),
 		},
 		{
 			Name: "validation_fuzzy_object",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(`{"name|string":"eco","age|int":30}`),
 				[]byte(`{"age" :30, "name": "eco"}`),
 			)),
-			Expect: unit.Returns(nil),
+			Expect: Returns(nil),
 		},
 		{
 			Name: "validation_fuzzy_object",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(`{"name|string":"*","age|int":"*"}`),
 				[]byte(`{"age" :30, "name": "eco"}`),
 			)),
-			Expect: unit.Returns(nil),
+			Expect: Returns(nil),
 		},
 		{
 			Name: "validation_fuzzy_object",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(`{"name|string":"*","age|int":"*"}`),
 				[]byte(`{"age" :"emre", "name": 30}`),
 			)),
-			Expect: unit.Returns(errors.New("type expectation failed. expected type: 'string', got type: 'int', path: '[name]'")),
+			Expect: Returns(errors.New("type expectation failed. expected type: 'string', got type: 'int', path: '[name]'")),
 		},
 		{
 			Name: "validation_fuzzy_object",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(`{"name|string":"*","age|int":"*"}`),
 				[]byte(`{"age":72,"name":"test"}`),
 			)),
-			Expect: unit.Returns(nil),
+			Expect: Returns(nil),
 		},
 		{
 			Name: "validation_fuzzy_object",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(`{"name|string":"*","age|int":"30", "*employed|boolean":"*"}`),
 				[]byte(`{"age":30,"name":"eco"}`),
 			)),
-			Expect: unit.Returns(nil),
+			Expect: Returns(nil),
 		},
 		{
 			Name: "validation_fuzzy_object",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(`{"name|string":"*","age|int":"30", "*employed|boolean":"*"}`),
 				[]byte(`{"age":30,"name":"eco","employed":"yes"}`),
 			)),
-			Expect: unit.Returns(errors.New("type expectation failed. expected type: 'boolean', got type: 'string', path: '[employed]'")),
+			Expect: Returns(errors.New("type expectation failed. expected type: 'boolean', got type: 'string', path: '[employed]'")),
 		},
 		{
 			Name: "validation_fuzzy_object",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(`{"name|string":"*","age|int":"30", "*employed|boolean":"*"}`),
 				[]byte(`{"age":30,"name":"eco","employed":false}`),
 			)),
-			Expect: unit.Returns(nil),
+			Expect: Returns(nil),
 		},
 		{
 			Name: "validation_fuzzy_array",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(`[]`),
 				[]byte(`[]`),
 			)),
-			Expect: unit.Returns(nil),
+			Expect: Returns(nil),
 		},
 		{
 			Name: "validation_fuzzy_array",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(`[]`),
 				[]byte(``),
 			)),
-			Expect: unit.Returns(nil),
+			Expect: Returns(errors.New("expected something but got nothing (got nil body)")),
 		},
 		{
 			Name: "validation_fuzzy_array",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(``),
 				[]byte(`[]`),
 			)),
-			Expect: unit.Returns(nil),
+			Expect: Returns(errors.New("no expectation specified but got response body. body: '[]'")),
 		},
 		{
 			Name: "validation_fuzzy_array",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(`{"items|array":[
 					{"name|string":"*","age|int":30}
 				]}`),
@@ -204,11 +201,11 @@ var (
 					{"name":"eco1","age":"30"}
 				]}`),
 			)),
-			Expect: unit.Returns(errors.New("type expectation failed. expected type: 'int', got type: 'string', path: '[items 0 age]'")),
+			Expect: Returns(errors.New("type expectation failed. expected type: 'int', got type: 'string', path: '[items 0 age]'")),
 		},
 		{
 			Name: "validation_fuzzy_array",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(`{"items|array":[
 					{"name|string":"*","age|int":30}
 				]}`),
@@ -216,11 +213,11 @@ var (
 					{"name":"eco1","age":30}
 				]}`),
 			)),
-			Expect: unit.Returns(nil),
+			Expect: Returns(nil),
 		},
 		{
 			Name: "validation_fuzzy_array",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(`{"items|array":[
 					{"name|string":"*","age|int":"*"}
 				]}`),
@@ -230,11 +227,11 @@ var (
 					{"name":"eco3","age":33}
 				]}`),
 			)),
-			Expect: unit.Returns(errors.New("unexpected path. path: [items 1 name]")),
+			Expect: Returns(errors.New("unexpected path. path: [items 1 name]")),
 		},
 		{
 			Name: "validation_fuzzy_array",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(`{"items|array":[
 					{"name|string":"*","age|int":"*","games|array":[
 						"headball2",
@@ -245,11 +242,11 @@ var (
 					{"name":"eco1","age":31,"games":"test"}
 				]}`),
 			)),
-			Expect: unit.Returns(errors.New("type expectation failed. expected type: 'array', got type: 'string', path: '[items 0 games]'")),
+			Expect: Returns(errors.New("type expectation failed. expected type: 'array', got type: 'string', path: '[items 0 games]'")),
 		},
 		{
 			Name: "validation_fuzzy_array",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(`{"items|array":[
 					{"name|string":"*","age|int":"*","games|array":[
 						"headball2",
@@ -260,11 +257,11 @@ var (
 					{"name":"eco1","age":31,"games":[]}
 				]}`),
 			)),
-			Expect: unit.Returns(errors.New("error: array is empty error_code: 02. path: [items 0 games 0]")),
+			Expect: Returns(errors.New("error: array is empty error_code: 02. path: [items 0 games 0]")),
 		},
 		{
 			Name: "validation_fuzzy_array",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(`{"items|array":[
 					{"name|string":"*","age|int":"*","games|array":[
 						"headball2",
@@ -277,11 +274,11 @@ var (
 					]}
 				]}`),
 			)),
-			Expect: unit.Returns(errors.New("error: index out of range error_code: 07. path: [items 0 games 1]")),
+			Expect: Returns(errors.New("error: index out of range error_code: 07. path: [items 0 games 1]")),
 		},
 		{
 			Name: "validation_fuzzy_array",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(`{"items|array":[
 					{"name|string":"*","age|int":"*","games|array":[
 						"headball2",
@@ -295,11 +292,11 @@ var (
 					]}
 				]}`),
 			)),
-			Expect: unit.Returns(nil),
+			Expect: Returns(nil),
 		},
 		{
 			Name: "validation_fuzzy_array",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(`{"items|array":[
 					{"name|string":"*","age|int":"*","games|array":[
 						"headball2",
@@ -314,14 +311,14 @@ var (
 					]}
 				]}`),
 			)),
-			Expect: unit.Returns(errors.New("unexpected path. path: [items 0 games 2]")),
+			Expect: Returns(errors.New("unexpected path. path: [items 0 games 2]")),
 		},
 		{
 			Name: "validation_null_values",
-			Func: unit.Func(utils.Validate(
+			Func: Func(validate(
 				[]byte(`{
-					"name":"", 
-					"age":0, 
+					"name":"",
+					"age":0,
 					"body":{
 						"test":"",
 						"emre":null,
@@ -330,11 +327,11 @@ var (
 					}`),
 				[]byte(`{"name":"", "age":0, "body":{"test":"","emre":null,"run":false}}`),
 			)),
-			Expect: unit.Returns(nil),
+			Expect: Returns(nil),
 		},
 	}
 )
 
 func TestValidation(t *testing.T) {
-	unit.Test(t, scenario)
+	Run(t, scenario)
 }

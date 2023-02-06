@@ -3,37 +3,32 @@ package example
 import (
 	"net/http"
 
-	"github.com/ecoshub/taste/server"
+	"github.com/ecoshub/taste"
 )
 
 var (
-	TestUser []byte = []byte(`{"id":"718c9a02","name":"john","age":20}`)
-)
-
-var (
-	Scenario = []*server.Case{
+	Scenario = []*taste.HTTPTestCase{
 		{
-			Name:        "version_success",
-			CheckHeader: true,
-			Request: &server.Request{
+			Name: "version_success",
+			Request: &taste.Request{
 				Method: http.MethodGet,
 				Path:   "/api/v1/version",
 			},
-			Expect: &server.Expect{
-				Status:     http.StatusOK,
-				Header:     server.HeaderContentPlainText,
-				BodyString: "v1.0.0",
+			Expect: &taste.Expect{
+				Status: http.StatusOK,
+				Header: taste.HeaderContentPlainText,
+				Body:   "v1.0.0",
 			},
 		},
 		{
 			Name: "users_success",
-			Request: &server.Request{
+			Request: &taste.Request{
 				Method: http.MethodGet,
 				Path:   "/api/v1/users",
 			},
-			Expect: &server.Expect{
+			Expect: &taste.Expect{
 				Status: http.StatusOK,
-				BodyString: `
+				Body: `
 					[
 						{"id":"a4fb4201","name":"eco","age":30},
 						{"id":"43bd1a0d","name":"any","age":29}
@@ -42,56 +37,56 @@ var (
 		},
 		{
 			Name: "user_fail",
-			Request: &server.Request{
+			Request: &taste.Request{
 				Method: http.MethodGet,
 				Path:   "/api/v1/user?name=corey",
 			},
-			Expect: &server.Expect{
-				Status:     http.StatusNotFound,
-				BodyString: "404 page not found",
+			Expect: &taste.Expect{
+				Status: http.StatusNotFound,
+				Body:   "404 page not found",
 			},
 		},
 		{
 			Name: "user_get_eco_success",
-			Request: &server.Request{
+			Request: &taste.Request{
 				Method: http.MethodGet,
 				Path:   "/api/v1/user?name=eco",
 			},
-			Expect: &server.Expect{
-				Status:     http.StatusOK,
-				BodyString: `{"id":"a4fb4201","name":"eco","age":30}`,
+			Expect: &taste.Expect{
+				Status: http.StatusOK,
+				Body:   `{"id":"a4fb4201","name":"eco","age":30}`,
 			},
 		},
 		{
 			Name:        "user_get_any_success",
 			CheckHeader: true,
-			Request: &server.Request{
+			Request: &taste.Request{
 				Method: http.MethodGet,
 				Path:   "/api/v1/user?name=any",
 			},
-			Expect: &server.Expect{
-				Status:     http.StatusOK,
-				BodyString: `{"id":"43bd1a0d","name":"any","age":29}`,
-				Header:     server.HeaderContentApplicationJSON,
+			Expect: &taste.Expect{
+				Status: http.StatusOK,
+				Body:   `{"id":"43bd1a0d","name":"any","age":29}`,
+				Header: taste.HeaderContentApplicationJSON,
 			},
 		},
 		{
 			Name:        "user_new_success",
 			CheckHeader: true,
-			Request: &server.Request{
-				Method:     http.MethodPost,
-				Path:       "/api/v1/user/new",
-				BodyString: `{"id":"718c9a02","name":"john","age":20}`,
+			Request: &taste.Request{
+				Method: http.MethodPost,
+				Path:   "/api/v1/user/new",
+				Body:   `{"id":"718c9a02","name":"john","age":20}`,
 			},
-			Expect: &server.Expect{
+			Expect: &taste.Expect{
 				Status: http.StatusOK,
-				BodyString: `
+				Body: `
 					[
 						{"id":"a4fb4201","name":"eco","age":30},
 						{"id":"43bd1a0d","name":"any","age":29},
 						{"id":"718c9a02","name":"john","age":20}
 					]`,
-				Header: server.HeaderContentApplicationJSON,
+				Header: taste.HeaderContentApplicationJSON,
 			},
 		},
 	}

@@ -3,8 +3,8 @@ package main
 import (
 	"testing"
 
+	"github.com/ecoshub/taste"
 	example "github.com/ecoshub/taste/example/server"
-	"github.com/ecoshub/taste/server"
 )
 
 func TestGINServer(t *testing.T) {
@@ -12,7 +12,7 @@ func TestGINServer(t *testing.T) {
 	s := exampleGINServer()
 
 	// create a tester with server handler and tester
-	tester := server.NewTester(t, s.Handler())
+	tester := taste.NewHTTPServerTester(t, s.Handler())
 
 	// run the tester
 	tester.Run(example.Scenario)
