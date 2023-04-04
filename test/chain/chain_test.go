@@ -12,17 +12,17 @@ import (
 )
 
 var (
-	Scenario = []*server.Case{
+	scenario = []*server.Case{
 		{
 			StoreResponse: true,
 			Name:          "test_1",
 			Request: &server.Request{
-				Method: http.MethodGet,
-				Path:   "/api/v1/random",
+				Method:     http.MethodGet,
+				RequestURI: "/api/v1/random",
 			},
-			Expect: &server.Expect{
-				Status:     http.StatusOK,
-				BodyString: `{"random|string":"*"}`,
+			Response: &server.Response{
+				Status: http.StatusOK,
+				Body:   []byte(`{"random|string":"*"}`),
 			},
 		},
 		{
@@ -30,12 +30,12 @@ var (
 			Name:          "test_2",
 			Request: &server.Request{
 				Method:     http.MethodGet,
-				Path:       "/api/v1/echo",
-				BodyString: `{"id":"<<test_1.random>>","name":"eco"}`,
+				RequestURI: "/api/v1/echo",
+				Body:       []byte(`{"id":"<<test_1.random>>","name":"eco"}`),
 			},
-			Expect: &server.Expect{
-				Status:     http.StatusOK,
-				BodyString: `{"id":"<<test_1.random>>","name":"eco"}`,
+			Response: &server.Response{
+				Status: http.StatusOK,
+				Body:   []byte(`{"id":"<<test_1.random>>","name":"eco"}`),
 			},
 		},
 		{
@@ -43,22 +43,22 @@ var (
 			Name:          "test_3",
 			Request: &server.Request{
 				Method:     http.MethodGet,
-				Path:       "/api/v1/echo",
-				BodyString: `{"id":"<<test_1.random>>","name":"<<test_2.name>>"}`,
+				RequestURI: "/api/v1/echo",
+				Body:       []byte(`{"id":"<<test_1.random>>","name":"<<test_2.name>>"}`),
 			},
-			Expect: &server.Expect{
-				Status:     http.StatusOK,
-				BodyString: `{"id":"<<test_2.id>>","name":"<<test_2.name>>"}`,
+			Response: &server.Response{
+				Status: http.StatusOK,
+				Body:   []byte(`{"id":"<<test_2.id>>","name":"<<test_2.name>>"}`),
 			},
 		},
 	}
 )
 
-func NewServer() *server.HTTPMock {
-	s := server.NewHTTPServer("127.0.0.1")
-	s.Handle("GET", "/api/v1/echo", echoHandler)
-	s.Handle("GET", "/api/v1/random", randomHandler)
-	return s
+func NewServer() http.Handler {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/api/v1/echo", echoHandler)
+	mux.HandleFunc("/api/v1/random", randomHandler)
+	return mux
 }
 
 func echoHandler(w http.ResponseWriter, r *http.Request) {
@@ -79,11 +79,11 @@ func randomHandler(w http.ResponseWriter, r *http.Request) {
 
 func TestCore(t *testing.T) {
 
-	s := NewServer()
+	mux := NewServer()
 
 	// create a tester with server handler and scenario
-	tester := server.NewTester(Scenario, s.Handler())
+	tester := server.NewTester(mux)
 
 	// run the scenario
-	tester.Run(t)
+	tester.Run(t, scenario)
 }

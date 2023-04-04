@@ -5,9 +5,9 @@ import (
 	"net/http/httptest"
 )
 
-func Do(handler http.Handler, mockIP string, req *http.Request) (*http.Response, error) {
+// Do makes an HTTP request to the given handler and returns the response
+func Do(handler http.Handler, req *http.Request) *http.Response {
 	w := httptest.NewRecorder()
-	req.RemoteAddr = mockIP
 	handler.ServeHTTP(w, req)
-	return w.Result(), nil
+	return w.Result()
 }

@@ -1,36 +1,23 @@
 package server
 
 import (
-	"net/http"
-	"net/url"
 	"testing"
 )
 
-type scenario []*Case
-
+// Case represents an individual test case
 type Case struct {
-	Name          string
-	OnlyRunThis   bool
+	// Name identifies the name of the test case
+	Name string
+	// OnlyRunThis indicates whether this test case should be the only one run
+	OnlyRunThis bool
+	// StoreResponse indicates whether the response should be stored for later use
 	StoreResponse bool
-	Request       *Request
-	Expect        *Expect
-	RunBefore     func(t *testing.T)
-	RunAfter      func(t *testing.T)
-}
-
-type Request struct {
-	Method     string
-	Path       string
-	Header     http.Header
-	Query      url.Values
-	Body       []byte
-	BodyString string
-}
-
-type Expect struct {
-	Status     int
-	Body       []byte
-	BodyString string
-	Header     http.Header
-	Error      error
+	// Request defines the HTTP request to be made
+	Request *Request
+	// Response defines the expected HTTP response
+	Response *Response
+	// RunBefore is a function to run before the test case
+	RunBefore func(t *testing.T, c *Case)
+	// RunAfter is a function to run after the test case
+	RunAfter func(t *testing.T, c *Case)
 }

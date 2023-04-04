@@ -6,36 +6,32 @@ import (
 	"testing"
 )
 
-type scenario []*Case
-
+// Case represents a single test case
 type Case struct {
-	Name        string
-	Func        []interface{}
-	Expect      []interface{}
-	OnlyRunThis bool
+	Name        string        // Name of the test case
+	OnlyRunThis bool          // If true, only run this test case and skip others
+	Func        []interface{} // Arguments to the function being tested
+	Expect      []interface{} // Expected return values from the function being tested
 }
 
-func Func(i ...interface{}) []interface{}    { return i }
-func Returns(i ...interface{}) []interface{} { return i }
+// Func is a helper function to pass arguments to a test case
+func Func(params ...interface{}) []interface{} { return params }
 
-func Test(t *testing.T, scenario scenario) {
-	c, ok := hasOnlyRunMe(scenario)
-	if ok {
-		c.Test(t)
-		return
-	}
-	for _, c := range scenario {
-		c.Test(t)
-	}
-}
+// Returns is a helper function to pass expected return values to a test case
+func Returns(params ...interface{}) []interface{} { return params }
 
-func hasOnlyRunMe(scenario scenario) (*Case, bool) {
+// Test runs the provided test cases
+func Test(t *testing.T, scenario []*Case) {
 	for _, c := range scenario {
 		if c.OnlyRunThis {
-			return c, true
+			c.Test(t)
+			return
 		}
 	}
-	return nil, false
+	// Otherwise, run all test cases in the provided order
+	for _, c := range scenario {
+		c.Test(t)
+	}
 }
 
 func (c *Case) Test(t *testing.T) {

@@ -5,12 +5,6 @@ import (
 	"net/http"
 )
 
-func NewLiveServerTester(sc scenario) *Tester {
-	t := NewTester(sc)
-	t.handler = newLiveServerHandler()
-	return t
-}
-
 type LiveServerHandler struct{}
 
 func (lh *LiveServerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -35,6 +29,9 @@ func (lh *LiveServerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	io.Copy(w, resp.Body)
 }
 
-func newLiveServerHandler() *LiveServerHandler {
-	return &LiveServerHandler{}
+func NewLiveServerTester() *Tester {
+	return &Tester{
+		handler: &LiveServerHandler{},
+		store:   make(map[string][]byte),
+	}
 }
