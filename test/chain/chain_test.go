@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"testing"
 
-	example "github.com/ecoshub/taste/example/server"
 	"github.com/ecoshub/taste/server"
 	"github.com/ecoshub/taste/utils"
 )
@@ -64,7 +63,7 @@ func NewServer() http.Handler {
 func echoHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		w.Write(example.MarshalDiscardError(map[string]string{"error": err.Error()}))
+		w.Write([]byte(fmt.Sprintf(`{"error":"%s"}`, err.Error())))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
