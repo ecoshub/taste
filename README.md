@@ -7,7 +7,7 @@ taste is a simple (but powerful) table driven testing tool.
 
 - HTTP Server Testing: 
 
-It allows you to define a scenario of HTTP requests and expected responses, and will run the scenario and perform assertions to ensure that the server is behaving as expected.
+It allows you to define a scenario of HTTP requests and expected responses, and will run the scenario and perform assertions to ensure that the server is behaving as expected. Additionally, you can chain the responses from previous requests to use in subsequent requests.
 
 - Unit testing:
 
@@ -20,9 +20,9 @@ It allows you to define a scenario of HTTP requests and expected responses, and 
 
 - The validation is done against a JSON validation scheme, which specifies the expected structure and content of the data.
 
-- The validation scheme uses a specific syntax to specify the structure and content of a JSON object. The syntax is `"field_name|type": "value"`, where field_name is the name of the field, type is the data type of the field, and value is the expected value of the field.
+- The validation scheme uses a specific syntax to specify the structure and content of a JSON object. The syntax is `"field_name|type": "value"`, where field_name is the name of the field, type is the data type of the field, and value is the expected value of the field. example: `{"name|string":"taste"}`
 
-- The validation scheme supports wildcards, which can be used to match any value or data type. The wildcard is denoted by *.
+- The validation scheme supports wildcards, which can be used to match any value or data type. The wildcard is denoted by asterisk (`*`).
 
 - The validate function returns an error if the data does not match the scheme, and returns nil if the data matches the scheme.
 
