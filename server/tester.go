@@ -66,7 +66,7 @@ func (tt *Tester) runCase(t *testing.T, c *Case) {
 	defer resp.Body.Close()
 
 	// Process the response body using the store.
-	expectedBody, err := utils.ProcessBody(tt.store, responseBody)
+	expectedBody, err := utils.ProcessBody(tt.store, c.Response.Body)
 	utils.CheckExpectError(t, "expect-body-process", err, nil)
 
 	// Check if the response body matches the expected value.

@@ -192,21 +192,24 @@ func compare(expect, got []byte, pathsExpected, pathsReal [][]string) error {
 				return fmt.Errorf(ErrStringTypeExpectation, e.Type, realType, realPath)
 			}
 		} else {
-			// If the expected type is empty, check if the type of the value in the real JSON matches the type in the expected JSON
-			if expectedType != realType {
-				// If the types do not match, return an error
-				return fmt.Errorf(ErrStringTypeExpectation, expectedType, realType, realPath)
+			if !e.IsWildcard {
+				// If the expected type is empty, check if the type of the value in the real JSON matches the type in the expected JSON
+				if expectedType != realType {
+					// If the types do not match, return an error
+					return fmt.Errorf(ErrStringTypeExpectation, expectedType, realType, realPath)
+				}
 			}
+		}
+
+		if e.IsWildcard {
+			continue
 		}
 
 		if !(realType == "array" || realType == "object") {
 			// If the real type is not an array or object, check if the value matches the expected value
-			if !e.IsWildcard {
-				// If the expected value is not a wildcard, check if the real value matches it
-				if realValue != e.Value {
-					// If the values do not match, return an error
-					return fmt.Errorf(ErrStringValueExpectation, e.Value, realValue, realPath)
-				}
+			if realValue != e.Value {
+				// If the values do not match, return an error
+				return fmt.Errorf(ErrStringValueExpectation, e.Value, realValue, realPath)
 			}
 		}
 	}
@@ -233,12 +236,15 @@ func resolve(key, value string, path []string) (*expect, error) {
 	// create a new instance of expect struct
 	e := &expect{}
 
-	// check if the key starts with an asterisk '*' and set the Required field accordingly
+	// expected field always required
+	e.Required = true
+
+	// unless field starts with an asterisk (*)
 	if strings.HasPrefix(key, "*") {
 		key = key[1:]
-		e.Required = false
-	} else {
-		e.Required = true
+		if key != "*" {
+			e.Required = false
+		}
 	}
 
 	// split the key string by '|' separator and handle different cases
