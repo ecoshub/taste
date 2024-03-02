@@ -149,15 +149,15 @@ var (
 		{
 			Name: "validation_fuzzy_object",
 			Func: unit.Func(utils.Validate(
-				[]byte(`{"name|string":"*","age|int":"30", "*employed|boolean":"*"}`),
+				[]byte(`{"name|string":"*","age|int":"30", "employed|boolean":"*"}`),
 				[]byte(`{"age":30,"name":"eco"}`),
 			)),
-			Expect: unit.Returns(nil),
+			Expect: unit.Returns(errors.New("field is required. field: 'employed'")),
 		},
 		{
 			Name: "validation_fuzzy_object",
 			Func: unit.Func(utils.Validate(
-				[]byte(`{"name|string":"*","age|int":"30", "*employed|boolean":"*"}`),
+				[]byte(`{"name|string":"*","age|int":"30", "employed|boolean":"*"}`),
 				[]byte(`{"age":30,"name":"eco","employed":"yes"}`),
 			)),
 			Expect: unit.Returns(errors.New("type expectation failed. expected type: 'boolean', got type: 'string', path: '[employed]'")),
@@ -165,7 +165,15 @@ var (
 		{
 			Name: "validation_fuzzy_object",
 			Func: unit.Func(utils.Validate(
-				[]byte(`{"name|string":"*","age|int":"30", "*employed|boolean":"*"}`),
+				[]byte(`{"name|string":"*","age|int":"30","*employed|boolean":"*"}`),
+				[]byte(`{"age":30,"name":"eco","employed":false}`),
+			)),
+			Expect: unit.Returns(nil),
+		},
+		{
+			Name: "validation_fuzzy_object",
+			Func: unit.Func(utils.Validate(
+				[]byte(`{"name|string":"*","age|int":"30", "employed|boolean":"*"}`),
 				[]byte(`{"age":30,"name":"eco","employed":false}`),
 			)),
 			Expect: unit.Returns(nil),
@@ -320,8 +328,8 @@ var (
 			Name: "validation_null_values",
 			Func: unit.Func(utils.Validate(
 				[]byte(`{
-					"name":"", 
-					"age":0, 
+					"name":"",
+					"age":0,
 					"body":{
 						"test":"",
 						"emre":null,
