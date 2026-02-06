@@ -17,4 +17,6 @@ type Request struct {
 	Query url.Values
 	// Body is the request body as a byte slice
 	Body []byte
+	// BodyString is the request body as a string
+	BodyString string
 }

@@ -30,8 +30,17 @@ func CheckEqual(t *testing.T, field string, got, expect interface{}) {
 	}
 }
 
+// CheckEqual checks that two values are equal.
+func CheckEqualOnlyLog(t *testing.T, field string, got, expect interface{}) bool {
+	if !check(t, field, got, expect) {
+		justLog(t, field, got, expect)
+		return false
+	}
+	return true
+}
+
 // check checks that two values are equal using reflection.
-func check(t *testing.T, field string, got, expect interface{}) bool {
+func check(_ *testing.T, _ string, got, expect interface{}) bool {
 	return reflect.DeepEqual(got, expect)
 }
 
@@ -61,4 +70,9 @@ func failNot(t *testing.T, field string, got, expect interface{}) {
 // fail logs a failure message for CheckEqual.
 func fail(t *testing.T, field string, got, expect interface{}) {
 	t.Fatalf("'%s' unexpected result. got: '%v' (%T), expected: '%v' (%T)", field, got, got, expect, expect)
+}
+
+// fail logs a failure message for CheckEqual.
+func justLog(t *testing.T, field string, got, expect interface{}) {
+	t.Logf("'%s' unexpected result. got: '%v' (%T), expected: '%v' (%T)", field, got, got, expect, expect)
 }

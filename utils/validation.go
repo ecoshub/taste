@@ -139,10 +139,6 @@ func compare(expect, got []byte, pathsExpected, pathsReal [][]string) error {
 
 		// Get the expected type
 		expectedType, err := jin.GetType(expect, expectedPath...)
-		if err != nil {
-			return fmt.Errorf("fatal parsing error. %v", err)
-		}
-
 		// Check if the key exists in the expected object
 		if err != nil {
 			if jin.ErrEqual(err, jin.ErrCodeKeyNotFound) {

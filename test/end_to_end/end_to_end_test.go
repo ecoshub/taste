@@ -1,4 +1,4 @@
-package chain_test
+package end_to_end_test
 
 import (
 	"fmt"
@@ -43,11 +43,22 @@ var (
 			Request: &server.Request{
 				Method:     http.MethodGet,
 				RequestURI: "/api/v1/echo",
-				Body:       []byte(`{"id":"<<test_1.random>>","name":"<<test_2.name>>"}`),
+				BodyString: `{"id":"<<test_1.random>>","name":"<<test_2.name>>"}`,
+			},
+			Response: &server.Response{
+				Status:     http.StatusOK,
+				BodyString: `{"id":"<<test_2.id>>","name":"<<test_2.name>>"}`,
+			},
+		},
+		{
+			Name: "test_4",
+			Request: &server.Request{
+				Method:     http.MethodGet,
+				RequestURI: "/api/v1/echo",
+				BodyString: `{"id":"31"}`,
 			},
 			Response: &server.Response{
 				Status: http.StatusOK,
-				Body:   []byte(`{"id":"<<test_2.id>>","name":"<<test_2.name>>"}`),
 			},
 		},
 	}
@@ -76,7 +87,7 @@ func randomHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(body)
 }
 
-func TestCore(t *testing.T) {
+func Test(t *testing.T) {
 
 	mux := NewServer()
 

@@ -36,6 +36,22 @@ func (tt *Tester) runCase(t *testing.T, c *Case) {
 		}
 	}()
 
+	if c.Response.BodyString != "" && len(c.Response.Body) > 0 {
+		t.Fatal("you can only define 'Body' or 'BodyString'. not both.")
+	}
+
+	if c.Response.BodyString != "" {
+		c.Response.Body = []byte(c.Response.BodyString)
+	}
+
+	if c.Request.BodyString != "" && len(c.Request.Body) > 0 {
+		t.Fatal("you can only define 'Request.Body' or 'Request.BodyString'. not both.")
+	}
+
+	if c.Request.BodyString != "" {
+		c.Request.Body = []byte(c.Request.BodyString)
+	}
+
 	// Process the request body using the store.
 	processedRequestBody, err := utils.ProcessBody(tt.store, c.Request.Body)
 	utils.CheckExpectError(t, "request-body-process", err, nil)
@@ -50,12 +66,19 @@ func (tt *Tester) runCase(t *testing.T, c *Case) {
 	// Send the request and get the response.
 	resp := utils.Do(tt.handler, req)
 
+	var globalCheck bool = true
 	// Check if the response status code matches the expected value.
-	utils.CheckEqual(t, "response-status-code", resp.StatusCode, c.Response.Status)
+	check := utils.CheckEqualOnlyLog(t, "response-status-code", resp.StatusCode, c.Response.Status)
+	if !check {
+		globalCheck = false
+	}
 
 	// Check if the response headers match the expected values.
 	if len(c.Response.Header) > 0 {
-		utils.CheckEqual(t, "response-header", resp.Header, c.Response.Header)
+		check := utils.CheckEqualOnlyLog(t, "response-header", resp.Header, c.Response.Header)
+		if !check {
+			globalCheck = false
+		}
 	}
 
 	// Read the response body.
@@ -70,8 +93,13 @@ func (tt *Tester) runCase(t *testing.T, c *Case) {
 	utils.CheckExpectError(t, "expect-body-process", err, nil)
 
 	// Check if the response body matches the expected value.
-	if len(c.Response.Body) == 0 && len(responseBody) != 0 {
+	if len(responseBody) > 0 && (len(c.Response.Body) == 0 || string(c.Response.Body) == "{}") {
 		t.Fatalf("expected nothing but got something. body: %s", responseBody)
+	}
+
+	// Check if the response body matches the expected value.
+	if len(c.Response.Body) != 0 && len(responseBody) == 0 {
+		t.Fatalf("got nothing but expected something. body: %s", c.Response.Body)
 	}
 
 	// Validate the response body against the expected body.
@@ -90,6 +118,10 @@ func (tt *Tester) runCase(t *testing.T, c *Case) {
 	// If the "StoreResponse" flag is set, store the response body in the store.
 	if c.StoreResponse {
 		tt.store[c.Name] = responseBody
+	}
+
+	if !globalCheck {
+		t.Fail()
 	}
 }
 

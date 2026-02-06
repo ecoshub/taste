@@ -8,6 +8,8 @@ type Response struct {
 	Status int
 	// Body is the expected response body as a byte slice
 	Body []byte
+	// BodyString is the expected response body as a string
+	BodyString string
 	// Header is the expected HTTP headers in the response
 	Header http.Header
 	// Error is an expected error, if any (e.g., an error parsing the response body)

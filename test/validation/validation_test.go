@@ -1,4 +1,4 @@
-package validation
+package validation_test
 
 import (
 	"errors"
@@ -343,6 +343,6 @@ var (
 	}
 )
 
-func TestValidation(t *testing.T) {
+func Test(t *testing.T) {
 	unit.Test(t, scenario)
 }
