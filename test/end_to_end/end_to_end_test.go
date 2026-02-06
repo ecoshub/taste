@@ -67,11 +67,23 @@ var (
 			Request: &server.Request{
 				Method:     http.MethodGet,
 				RequestURI: "/api/v1/null",
-				BodyString: `{"id":"31"}`,
+				BodyString: `{"id":"62"}`,
 			},
 			Response: &server.Response{
 				Status:     http.StatusOK,
 				BodyString: "*",
+			},
+		},
+		{
+			Name: "test_6",
+			Request: &server.Request{
+				Method:     http.MethodGet,
+				RequestURI: "/api/v1/null",
+				BodyString: `{"id":"61"}`,
+			},
+			Response: &server.Response{
+				Status:     http.StatusOK,
+				BodyString: `{}`,
 			},
 		},
 	}
@@ -102,6 +114,7 @@ func randomHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func nullHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{}`))
 }
 

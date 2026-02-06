@@ -88,25 +88,16 @@ func (tt *Tester) runCase(t *testing.T, c *Case) {
 	}
 	defer resp.Body.Close()
 
-	// skip body validation if it is '*'
-	if !(len(c.Response.Body) == 1 && c.Response.Body[0] == '*') {
+	isResponseBodyWildCard := len(c.Response.Body) == 1 && c.Response.Body[0] == '*'
 
+	if !isResponseBodyWildCard {
 		// Process the response body using the store.
 		expectedBody, err := utils.ProcessBody(tt.store, c.Response.Body)
 		utils.CheckExpectError(t, "expect-body-process", err, nil)
 
-		if len(responseBody) != len(c.Response.Body) {
-			// Check if the response body matches the expected value.
-			if len(responseBody) > 0 && len(c.Response.Body) == 0 {
-				if !(string(responseBody) == "{}" && len(c.Response.Body) == 0) {
-					t.Fatalf("expected nothing but got something. body: %s", responseBody)
-				}
-			}
-
-			// Check if the response body matches the expected value.
-			if len(c.Response.Body) != 0 && len(responseBody) == 0 {
-				t.Fatalf("got nothing but expected something. body: %s", c.Response.Body)
-			}
+		if len(expectedBody) == 0 && len(responseBody) > 0 {
+			t.Logf("expected no body but got something. got: %s", responseBody)
+			globalCheck = false
 		}
 
 		// Validate the response body against the expected body.
@@ -115,11 +106,15 @@ func (tt *Tester) runCase(t *testing.T, c *Case) {
 		if err != nil {
 			// Check if the error is expected.
 			if c.Response.Error != nil {
-				utils.CheckEqual(t, "error", err, c.Response.Error)
-				return
+				check := utils.CheckEqualOnlyLog(t, "error", err, c.Response.Error)
+				if !check {
+					globalCheck = false
+				}
+			} else {
+				// Otherwise, fail the test.
+				t.Logf("err: '%v'. expected: %s, got: %s", err, expectedBody, responseBody)
+				globalCheck = false
 			}
-			// Otherwise, fail the test.
-			t.Fatalf("err: %v. expected: %s, got: %s", err, expectedBody, responseBody)
 		}
 	}
 

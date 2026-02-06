@@ -35,13 +35,21 @@ func Validate(expected, got []byte) error {
 	if len(expected) == 0 {
 		return nil
 	}
+
 	// Check if the expected byte slice is empty using jin.
-	isEmpty, err := jin.IsEmpty(expected)
+	isExpectedEmpty, err := jin.IsEmpty(expected)
 	if err != nil {
 		return err
 	}
-	if isEmpty {
-		return nil
+	isGotEmpty, err := jin.IsEmpty(got)
+	if err != nil {
+		return err
+	}
+	if isExpectedEmpty && !isGotEmpty {
+		return fmt.Errorf("empty response expected")
+	}
+	if !isExpectedEmpty && isGotEmpty {
+		return fmt.Errorf("response expected")
 	}
 	// Create slices to store the expected and real paths.
 	pathExpected := []string{}
