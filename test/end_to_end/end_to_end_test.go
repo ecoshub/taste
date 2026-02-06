@@ -55,10 +55,23 @@ var (
 			Request: &server.Request{
 				Method:     http.MethodGet,
 				RequestURI: "/api/v1/echo",
+				BodyString: `{"id":"61"}`,
+			},
+			Response: &server.Response{
+				Status:     http.StatusOK,
+				BodyString: `{"id":"61"}`,
+			},
+		},
+		{
+			Name: "test_5",
+			Request: &server.Request{
+				Method:     http.MethodGet,
+				RequestURI: "/api/v1/null",
 				BodyString: `{"id":"31"}`,
 			},
 			Response: &server.Response{
-				Status: http.StatusOK,
+				Status:     http.StatusOK,
+				BodyString: "*",
 			},
 		},
 	}
@@ -68,6 +81,7 @@ func NewServer() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/v1/echo", echoHandler)
 	mux.HandleFunc("/api/v1/random", randomHandler)
+	mux.HandleFunc("/api/v1/null", nullHandler)
 	return mux
 }
 
@@ -85,6 +99,10 @@ func randomHandler(w http.ResponseWriter, r *http.Request) {
 	random := utils.RandomHash(16)
 	body := []byte(fmt.Sprintf(`{"random":"%s"}`, random))
 	w.Write(body)
+}
+
+func nullHandler(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte(`{}`))
 }
 
 func Test(t *testing.T) {
