@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"net/http"
 	"strings"
 
 	"github.com/ecoshub/jin"
@@ -12,14 +13,32 @@ const (
 	symbolEnd   string = ">>"
 )
 
+func ProcessHeader(store map[string][]byte, header http.Header) (http.Header, error) {
+	newHeaders := http.Header{}
+	for key, values := range header {
+		for _, val := range values {
+			value, done, err := processBodyCore(store, []byte(val))
+			if err != nil {
+				return nil, err
+			}
+			if !done {
+				newHeaders.Add(key, string(value))
+			} else {
+				newHeaders.Add(key, val)
+			}
+		}
+	}
+	return newHeaders, nil
+}
+
 // ProcessBody processes the request body and replaces the symbols with values from the request.
 // The symbols are expected to be in the format of "<<name>>" where 'name' is the name of the request parameter.
 // If a request parameter is not found or an error occurs while processing the request, the symbol is not replaced.
-func ProcessBody(request map[string][]byte, symbol []byte) ([]byte, error) {
+func ProcessBody(store map[string][]byte, symbol []byte) ([]byte, error) {
 	var err error
 	done := false
 	for !done {
-		symbol, done, err = processBodyCore(request, symbol)
+		symbol, done, err = processBodyCore(store, symbol)
 		if err != nil {
 			return nil, err
 		}
@@ -32,7 +51,7 @@ func ProcessBody(request map[string][]byte, symbol []byte) ([]byte, error) {
 // It then extracts the name of the request parameter from the symbol and tries to replace the symbol with the corresponding value from the request.
 // If the request parameter is not found or an error occurs while processing the request, the symbol is not replaced.
 // Returns the updated symbol, a boolean flag indicating if the processing is complete, and an error if one occurs.
-func processBodyCore(request map[string][]byte, symbol []byte) ([]byte, bool, error) {
+func processBodyCore(store map[string][]byte, symbol []byte) ([]byte, bool, error) {
 	stringBody := string(symbol)
 	start := strings.Index(stringBody, symbolStart)
 	if start == -1 {
@@ -52,7 +71,7 @@ func processBodyCore(request map[string][]byte, symbol []byte) ([]byte, bool, er
 	name := tokens[0]
 
 	// Get the value of the request parameter from the request
-	body := request[name]
+	body := store[name]
 
 	var val string
 	var err error

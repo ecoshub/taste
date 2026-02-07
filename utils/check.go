@@ -3,7 +3,9 @@
 package utils
 
 import (
+	"net/http"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -42,6 +44,25 @@ func CheckEqualOnlyLog(t *testing.T, field string, got, expect interface{}) bool
 // check checks that two values are equal using reflection.
 func check(_ *testing.T, _ string, got, expect interface{}) bool {
 	return reflect.DeepEqual(got, expect)
+}
+
+// check checks that two values are equal using reflection.
+func CheckHeadersOnlyLog(t *testing.T, field string, got, expect http.Header) bool {
+	for key, values := range expect {
+		value := strings.ToLower(got.Get(key))
+		exists := false
+		for _, val := range values {
+			if strings.ToLower(val) == value {
+				exists = true
+				break
+			}
+		}
+		if !exists {
+			justLog(t, field+"' : '"+key, value, values)
+			return false
+		}
+	}
+	return true
 }
 
 // CheckExpectError checks that two errors are equal.

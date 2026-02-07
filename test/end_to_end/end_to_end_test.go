@@ -51,7 +51,8 @@ var (
 			},
 		},
 		{
-			Name: "test_4",
+			StoreResponse: true,
+			Name:          "test_4",
 			Request: &server.Request{
 				Method:     http.MethodGet,
 				RequestURI: "/api/v1/echo",
@@ -86,6 +87,27 @@ var (
 				BodyString: `{}`,
 			},
 		},
+		{
+			Name: "test_7",
+			Request: &server.Request{
+				Method:     http.MethodGet,
+				RequestURI: "/api/v1/echo",
+				BodyString: `{"id":"61"}`,
+				Header: http.Header{
+					"hello": []string{"world"},
+					"test":  []string{"<<test_4.id>>"},
+				},
+			},
+			Response: &server.Response{
+				Status: http.StatusOK,
+				Header: utils.HeaderPair(
+					"Content-Type", "text/plain; charset=utf-8",
+					"hello", "world",
+					"test", "61",
+				),
+				BodyString: `{"id":"61"}`,
+			},
+		},
 	}
 )
 
@@ -103,6 +125,11 @@ func echoHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(fmt.Sprintf(`{"error":"%s"}`, err.Error())))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
+	}
+	for key, values := range r.Header {
+		for _, val := range values {
+			w.Header().Add(key, val)
+		}
 	}
 	w.Write(body)
 }

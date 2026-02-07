@@ -61,7 +61,8 @@ func (tt *Tester) runCase(t *testing.T, c *Case) {
 	utils.CheckExpectError(t, "request-creation", err, nil)
 
 	// Set the request headers.
-	req.Header = c.Request.Header
+	req.Header, err = utils.ProcessHeader(tt.store, c.Request.Header)
+	utils.CheckExpectError(t, "request-header-error", err, nil)
 
 	// Send the request and get the response.
 	resp := utils.Do(tt.handler, req)
@@ -75,7 +76,7 @@ func (tt *Tester) runCase(t *testing.T, c *Case) {
 
 	// Check if the response headers match the expected values.
 	if len(c.Response.Header) > 0 {
-		check := utils.CheckEqualOnlyLog(t, "response-header", resp.Header, c.Response.Header)
+		check := utils.CheckHeadersOnlyLog(t, "response-header", resp.Header, c.Response.Header)
 		if !check {
 			globalCheck = false
 		}
