@@ -26,13 +26,15 @@ func NewTester(handler http.Handler) *Tester {
 func (tt *Tester) runCase(t *testing.T, c *Case) {
 	// Run the "RunBefore" function if it exists.
 	if c.RunBefore != nil {
-		c.RunBefore(t, c)
+		c.RunBefore(tt, t, c)
 	}
+
+	var responseBody []byte
 
 	// Defer the "RunAfter" function if it exists.
 	defer func() {
 		if c.RunAfter != nil {
-			c.RunAfter(t, c)
+			c.RunAfter(tt, t, c, responseBody)
 		}
 	}()
 
@@ -83,7 +85,7 @@ func (tt *Tester) runCase(t *testing.T, c *Case) {
 	}
 
 	// Read the response body.
-	responseBody, err := io.ReadAll(resp.Body)
+	responseBody, err = io.ReadAll(resp.Body)
 	if err != nil {
 		t.Fatal("response body read error. err:", err)
 	}
@@ -168,4 +170,9 @@ func (tt *Tester) StoreKeyValue(key string, body []byte) {
 // StoreKeyValueString stores a key-value pair in the store, with the value provided as a string.
 func (tt *Tester) StoreKeyValueString(key, value string) {
 	tt.StoreKeyValue(key, []byte(value))
+}
+
+// GetStoredValue get stored value from store.
+func (tt *Tester) GetStoredValue(key string) []byte {
+	return tt.store[key]
 }

@@ -17,7 +17,7 @@ type Case struct {
 	// Response defines the expected HTTP response
 	Response *Response
 	// RunBefore is a function to run before the test case
-	RunBefore func(t *testing.T, c *Case)
+	RunBefore func(tt *Tester, t *testing.T, c *Case)
 	// RunAfter is a function to run after the test case
-	RunAfter func(t *testing.T, c *Case)
+	RunAfter func(tt *Tester, t *testing.T, c *Case, responseBody []byte)
 }
